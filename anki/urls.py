@@ -20,7 +20,8 @@ from django.urls import path, include
 from cards import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", views.main),
-    path("cards/", include("cards.urls")),
+    path('admin/', admin.site.urls),
+    path('', views.main, name='index'),
+    path('about/', views.about, name='about'),
+    path('cards/', include('cards.urls')),
 ]
