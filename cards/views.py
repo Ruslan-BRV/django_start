@@ -140,4 +140,14 @@ def get_detail_card_by_id(request, card_id):
     """
     Возвращает детальную информацию по карточке для представления
     """
-    return HttpResponse(f'Detail card by id {card_id}')
+    card = None
+    for c in cards_dataset:
+        if c['id_card'] == int(card_id):
+            card = c
+            break 
+    info['card'] = card
+    if card:
+        return render(request, 'cards/card_detail.html', context=info)
+    else:
+        return HttpResponse('Такой карточки нет', status=404)    
+    
