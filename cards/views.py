@@ -121,8 +121,22 @@ def catalog(request):
     будет возвращать рендер шаблона /templates/cards/catalog.html"""
 
     # Получаем ВСЕ карточки для каталога
-    cards = Card.objects.all()
+    # cards = Card.objects.all()
 
+    sort = request.GET.get('sort', 'upload_date')
+    order = request.GET.get('order', 'desc')
+
+    valid_sort_fields = {'upload_date', 'views', 'adds'}
+    if sort not in valid_sort_fields:
+        sort = 'upload_date'
+
+    if order == 'asc':
+        order_by = sort
+    else:
+        order_by = f'-{sort}'
+
+    cards = Card.objects.all().order_by(order_by)
+    
     # Подготавливаем контекст и отображаем шаблон
     context = {
         'cards': cards,
