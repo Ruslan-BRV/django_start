@@ -1,6 +1,32 @@
+"""
+cards/views.py
+index - возвращает главную страницу - шаблон /templates/cards/main.html
+about - возвращает страницу "О проекте" - шаблон /templates/cards/about.html
+catalog - возвращает страницу "Каталог" - шаблон /templates/cards/catalog.html
+
+
+get_categories - возвращает все категории для представления в каталоге
+get_cards_by_category - возвращает карточки по категории для представления в каталоге
+get_cards_by_tag - возвращает карточки по тегу для представления в каталоге
+get_detail_card_by_id - возвращает детальную информацию по карточке для представления
+
+render(запрос, шаблон, контекст=None)
+    Возвращает объект HttpResponse с отрендеренным шаблоном шаблон и контекстом контекст.
+    Если контекст не передан, используется пустой словарь.
+"""
+
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.template.context_processors import request
+from cards.models import Card
 
+"""
+Информация в шаблоны будет браться из базы данных
+Но пока, мы сделаем переменные, куда будем записывать информацию, которая пойдет в 
+контекст шаблона
+"""
+
+# Пример данных для карточек
 cards_dataset = [
     {"question": "Что такое PEP 8?",
      "answer": "PEP 8 — стандарт написания кода на Python.",
@@ -72,54 +98,46 @@ info = {
     "cards": cards_dataset  # Добавим в контекст шаблона информацию о карточках, чтобы все было в одном месте
 }
 
-# class Info:
-#     user_count = 100600
-#     cards_count = 200700
 
-# info = Info()
-# info = {
-#     "info": info,
+def index(request):
+    """Функция для отображения главной страницы
+    будет возвращать рендер шаблона root/templates/main.html"""
+    return render(request, "main.html", info)
 
-# }
-
-# def main(request):
-#     return HttpResponse("Привет мир!", status=200)
-# def get_card_by_id(request, card_id):
-#     return HttpResponse(f"Карточка {card_id}")
-
-# def catalog(request):
-#     """
-#     Принимает информацию о проекте (словарь info)
-#     Возвращает шаблон по адресу templates/cards/catalog.html
-#     :param request:
-#     :return:
-#     """
-#     return render(request, 'cards/catalog.html', context=info)
-
-# def get_category_by_name(request, slug):
-#     return HttpResponse(f"Категория {slug}", status=200)
-
-
-def main(request):
-    """Представление рендерит шаблон base.html"""
-    return render(request, 'main.html', context=info)
 
 def about(request):
-    """Представление использует шаблон about.html"""
-    return render(request, 'about.html', context=info)
+    """Функция для отображения страницы "О проекте"
+    будет возвращать рендер шаблона /root/templates/about.html"""
+    return render(request, 'about.html', info)
 
-def get_all_cards(request):
-    """
-    Возвращает все карточки для представления в каталоге
-    """
-    return render(request, 'cards/catalog.html', context=info)
 
+# def catalog(request):
+#     """Функция для отображения страницы "Каталог"
+#     будет возвращать рендер шаблона /templates/cards/catalog.html"""
+#     return render(request, 'cards/catalog.html', info)
+
+def catalog(request):
+    """Функция для отображения страницы "Каталог"
+    будет возвращать рендер шаблона /templates/cards/catalog.html"""
+
+    # Получаем ВСЕ карточки для каталога
+    cards = Card.objects.all()
+
+    # Подготавливаем контекст и отображаем шаблон
+    context = {
+        'cards': cards,
+        'cards_count': cards.count(),
+        'menu': info['menu'],
+    }
+
+    return render(request, 'cards/catalog.html', context)
 
 def get_categories(request):
     """
     Возвращает все категории для представления в каталоге
     """
-    return HttpResponse('All categories')
+    # Проверка работы базового шаблона
+    return render(request, 'base.html', info)
 
 
 def get_cards_by_category(request, slug):
@@ -136,18 +154,38 @@ def get_cards_by_tag(request, slug):
     return HttpResponse(f'Cards by tag {slug}')
 
 
+# def get_detail_card_by_id(request, card_id):
+#     """
+#     Возвращает детальную информацию по карточке для представления
+#     """
+#     # Ищем карточку по id в нашем наборе данных
+#     card = None
+#     for c in cards_dataset:
+#         if c['id_card'] == int(card_id):
+#             card = c
+#             break
+
+#     info['card'] = card
+#     # Если карточка нашлась - рендерим шаблон с информацией о карточке
+#     if card:
+#         return render(request, 'cards/card_detail.html', context=info)
+#     else:
+#         return HttpResponse('Такой карточки нет', status=404)
+    
+
 def get_detail_card_by_id(request, card_id):
     """
     Возвращает детальную информацию по карточке для представления
     """
-    card = None
-    for c in cards_dataset:
-        if c['id_card'] == int(card_id):
-            card = c
-            break 
-    info['card'] = card
-    if card:
-        return render(request, 'cards/card_detail.html', context=info)
-    else:
-        return HttpResponse('Такой карточки нет', status=404)    
-    
+    # Ищем карточку по id в базе данных
+    card = Card.objects.get(pk=card_id)
+
+    # Подготавливаем контекст и отображаем шаблон
+    context = {
+        'card': card,
+        'menu': info['menu'],
+    }
+
+    return render(request, 'cards/card_detail.html', context)
+
+
