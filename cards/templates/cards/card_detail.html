@@ -20,7 +20,7 @@
       <div class="d-flex justify-content-between align-items-center mt-3">
         <a href="{% url 'catalog' %}" class="btn btn-dark">Вернуться к каталогу</a>
         <div>
-          <i class="bi bi-eye"></i> {{ card.views_count }}
+          <i class="bi bi-eye"></i> {{ card.views }}
           <i class="bi bi-star-fill"></i> {{ card.favorites_count }}
           <small class="text-muted">Дата загрузки: {{ card.upload_date }}</small>
         </div>

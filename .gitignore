@@ -2,3 +2,4 @@ venv
 /db.sqlite3
 /.vscode
 .pylintrc
+db.sqlite3

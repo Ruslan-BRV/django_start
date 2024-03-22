@@ -15,8 +15,9 @@ render(запрос, шаблон, контекст=None)
     Если контекст не передан, используется пустой словарь.
 """
 
+from django.db.models import F
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.template.context_processors import request
 from cards.models import Card
 
@@ -187,19 +188,32 @@ def get_cards_by_tag(request, slug):
 #         return HttpResponse('Такой карточки нет', status=404)
     
 
-def get_detail_card_by_id(request, card_id):
-    """
-    Возвращает детальную информацию по карточке для представления
-    """
-    # Ищем карточку по id в базе данных
-    card = Card.objects.get(pk=card_id)
+# def get_detail_card_by_id(request, card_id):
+#     """
+#     Возвращает детальную информацию по карточке для представления
+#     """
+#     # Ищем карточку по id в базе данных
+#     card = Card.objects.get(pk=card_id)
 
-    # Подготавливаем контекст и отображаем шаблон
+#     # Подготавливаем контекст и отображаем шаблон
+#     context = {
+#         'card': card,
+#         'menu': info['menu'],
+#     }
+
+#     return render(request, 'cards/card_detail.html', context)
+
+def get_detail_card_by_id(request, card_id):
+
+    card = get_object_or_404(Card, pk=card_id)
+
+    card.views = F('views') + 1
+    card.save()
+    
+    card.refresh_from_db()
     context = {
         'card': card,
         'menu': info['menu'],
     }
 
-    return render(request, 'cards/card_detail.html', context)
-
-
+    return render(request, 'cards/card_detail.html', context)    
