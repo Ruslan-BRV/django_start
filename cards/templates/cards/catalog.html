@@ -1,12 +1,83 @@
 <!-- cards/templates/cards/catalog.html -->
 <!-- Использует шаблон cards/templates/cards/include/card_preview.html -->
-{% extends "base.html" %}
+{% extends "base.html" %} 
 {% block content %}
 <h1>Каталог карточек Anki для интервального повторения</h1>
 <p>Здесь вы можете выбрать карточки для изучения</p>
-<p>На текущий момент, у нас карточек: {{cards_count}} и пользователей: {{users_count}} </p>
-{% for card in cards %}
-    {% include "cards/include/card_preview.html" %}
-{% endfor %}
+<p>
+  На текущий момент, у нас карточек: {{cards_count}} и пользователей:
+  {{users_count}}
+</p>
+<p>
+  <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Параметры сортировки</a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body mb-3">
+    <form>
+      <fieldset class="row mb-3">
+        <legend class="col-form-label col-sm-2 pt-0">
+          Выберите параметры:
+        </legend>
+        <div class="col-sm-10">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sort"
+              id="gridRadios1"
+              value="upload_date"
+            />
+            <label class="form-check-label" for="gridRadios1">
+              По дате добавления
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sort"
+              id="gridRadios2"
+              value="views"
+            />
+            <label class="form-check-label" for="gridRadios2">
+              По количеству просмотров
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sort"
+              id="gridRadios3"
+              value="adds"
+            />
+            <label class="form-check-label" for="gridRadios3">
+              По количеству добавлений
+            </label>
+          </div>
+        </div>
+      </fieldset>
+      <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              name="order"
+              id="gridCheck1"
+              value="asc"
+            />
+            <label class="form-check-label" for="gridCheck1">
+              От меньшего к большему
+            </label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-secondary">Отсортировать</button>
+    </form>
+  </div>
+</div>
+{% for card in cards %} 
+{% include "cards/include/card_preview.html" %} 
+{% endfor %} 
 {% endblock %}
-
