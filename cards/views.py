@@ -19,6 +19,7 @@ from django.db.models import F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.context_processors import request
+# import cards
 from cards.models import Card
 
 info = {
@@ -95,11 +96,11 @@ def get_cards_by_category(request, slug):
     return HttpResponse(f'Cards by category {slug}')
 
 
-def get_cards_by_tag(request, slug):
-    """
-    Возвращает карточки по тегу для представления в каталоге
-    """
-    return HttpResponse(f'Cards by tag {slug}')
+# def get_cards_by_tag(request, slug):
+#     """
+#     Возвращает карточки по тегу для представления в каталоге
+#     """
+#     return HttpResponse(f'Cards by tag {slug}')
 
 def get_detail_card_by_id(request, card_id):
 
@@ -115,3 +116,17 @@ def get_detail_card_by_id(request, card_id):
     }
 
     return render(request, 'cards/card_detail.html', context)    
+
+
+def get_cards_by_tag(request, tag_id):
+    """
+    Возвращает карточки по тегу для представления в каталоге
+    """
+    cards = Card.objects.filter(tags__id=tag_id)
+    context = {
+        'cards': cards,
+        'cards_count': cards.count(),
+        'menu': info['menu']
+    }
+
+    return render(request, 'cards/catalog.html', context)
