@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.template.defaultfilters import length
-from .models import Card
+from .models import Card, Tag, CardTag, Category
 from django.contrib.admin import SimpleListFilter
 
 # admin.site.register(Card)
@@ -46,7 +46,7 @@ class CardAdmin(admin.ModelAdmin):
     def set_checked(self, request, queryset):
         updated_count = queryset.update(status=Card.Status.CHECKED)
         self.message_user(request, f"{updated_count} записей было помечено как проверенное")
-
+ 
     @admin.action(description="Пометить как не проверенное")
     def set_unchecked(self, request, queryset):
         updated_count = queryset.update(status=Card.Status.UNCHECKED)
@@ -59,4 +59,15 @@ class CardAdmin(admin.ModelAdmin):
         # Проверяем наличие кода
         has_code = 'Да' if '```' in card.answer else 'Нет'
         return has_code
-    
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CardTag)
+class CardTagAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    pass

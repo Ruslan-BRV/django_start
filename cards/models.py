@@ -15,7 +15,7 @@ class Card(models.Model):
     adds = models.IntegerField(default=0, db_column='Favorites', verbose_name='Добавления')
     tags = models.ManyToManyField('Tag', through='CardTag', related_name='cards', verbose_name='Теги')
     status = models.BooleanField(default=False, choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), verbose_name='Проверено')
-
+    # check_status = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), default=Status.UNCHECKED,db_column='CheckStatus')
     class Meta:
         db_table = 'Cards' # имя таблицы в базе данных
         verbose_name = 'Карточка' # имя модели в единственном числе
