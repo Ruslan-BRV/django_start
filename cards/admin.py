@@ -1,8 +1,26 @@
 from django.contrib import admin
 from django.template.defaultfilters import length
 from .models import Card
+from django.contrib.admin import SimpleListFilter
 
 # admin.site.register(Card)
+
+class CardCodeFilter(SimpleListFilter):
+    title = 'Наличие кода'
+    parameter_name = 'has_code'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Да'),
+            ('no', 'Нет'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(answer__contains='```')
+        elif self.value() == 'no':
+            return queryset.exclude(answer__contains='```')
+        
 
 @admin.register(Card)
 class CardAdmin(admin.ModelAdmin):
@@ -13,14 +31,16 @@ class CardAdmin(admin.ModelAdmin):
     # Поля по которым будет поиск
     search_fields = ('question', 'answer')
     # Поля по которым будет фильтрация
-    list_filter = ('category', 'upload_date', 'status')
+    list_filter = ('category', 'upload_date', 'status', CardCodeFilter)
     # Ordering - сортировка
     ordering = ('-upload_date',)
     # List_per_page - количество элементов на странице
-    list_per_page = 25
+    list_per_page = 12
     # Поля, которые можно редактировать
     list_editable = ('views', 'question', 'status')
     actions = ['set_checked', 'set_unchecked']
+    # fields = ('question', 'answer', 'category', 'status')
+    change_form_template = 'admin/cards/change_form_custom.html'
 
     @admin.action(description="Пометить как проверенное")
     def set_checked(self, request, queryset):
