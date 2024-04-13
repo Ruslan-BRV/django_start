@@ -47,4 +47,6 @@ class UploadFileForm(forms.Form):
     file = forms.FileField(label='Выберите файл', widget=forms.FileInput(attrs={'class': 'form-control'}))
 
 class SearchCardsForm(forms.Form):
+    sort = forms.ChoiceField(label="Параметры сортировки:", choices=(('upload_date', 'по дате добавления'), ('views', 'по количеству просмотров'), ('adds', 'по количеству добавлений')), widget= forms.Select(attrs={'class': 'form-control'}))
+    order = forms.ChoiceField(label="", choices=(('desc', 'от большего к меньшему'), ('asc', 'от меньшего к большему')), widget= forms.Select(attrs={'class': 'form-control'}))
     search_query = forms.CharField(label="", required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))

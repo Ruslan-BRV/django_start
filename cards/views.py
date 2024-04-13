@@ -69,22 +69,30 @@ def catalog(request):
 
     # Получаем ВСЕ карточки для каталога
     # cards = Card.objects.all()
+    # sort = request.GET.get('sort', 'upload_date')
+    # order = request.GET.get('order', 'desc')
+
+    # valid_sort_fields = {'upload_date', 'views', 'adds'}
+    # if sort not in valid_sort_fields:
+    #     sort = 'upload_date'
+
+    # if order == 'asc':
+    #     order_by = sort
+    # else:
+    #     order_by = f'-{sort}'
+
+    # cards = Card.objects.all().order_by(order_by)
+    form = SearchCardsForm()
+    queryset = Card.objects.select_related('category').prefetch_related('tags')
+    search_query = request.GET.get('search_query')
     sort = request.GET.get('sort', 'upload_date')
     order = request.GET.get('order', 'desc')
-
-    valid_sort_fields = {'upload_date', 'views', 'adds'}
-    if sort not in valid_sort_fields:
-        sort = 'upload_date'
 
     if order == 'asc':
         order_by = sort
     else:
         order_by = f'-{sort}'
 
-    # cards = Card.objects.all().order_by(order_by)
-    form = SearchCardsForm()
-    queryset = Card.objects.select_related('category').prefetch_related('tags')
-    search_query = request.GET.get('search_query')
     if search_query:
             queryset = queryset.filter(
                 Q(question__icontains=search_query) |

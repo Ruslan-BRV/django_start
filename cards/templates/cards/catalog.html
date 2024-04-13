@@ -12,14 +12,17 @@
     {{users_count}}
   </p>
   <div class="p-2 d-flex">
-      <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Параметры сортировки</a>
-      <form class="d-flex ml-2" method="GET" role="search">
+      {% comment %} <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Параметры сортировки</a> {% endcomment %}
+      <form class="d-flex" method="GET">
         {% csrf_token %}
-        {{form}}
+        <div class="mr-1 align-self-center fw-medium fs-5">Параметры сортировки:</div>
+        {% for field in form %}
+        <div class="mr-1">{{field}}</div>
+        {% endfor %}
         <button class="btn btn-outline-secondary ml-1" type="submit">Поиск</button>
       </form> 
   </div>
-  <div class="collapse proverka" id="collapseExample" >
+  {% comment %} <div class="collapse proverka" id="collapseExample" >
     <div class="card card-body mb-3">
       <form>
         <fieldset class="row mb-3">
@@ -84,7 +87,7 @@
         <button type="submit" class="btn btn-secondary">Отсортировать</button>
       </form>
     </div>
-  </div>
+  </div> {% endcomment %}
 
 {% for card in cards %} 
 {% include "cards/include/card_preview.html" %} 
