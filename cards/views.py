@@ -17,12 +17,15 @@ render(запрос, шаблон, контекст=None)
 
 # from unicodedata import category
 import os
-from django.db.models import F
+from re import search
+from django.db.models import F, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.context_processors import request
 from django.template.loader import render_to_string
-from cards.forms import CardForm, UploadFileForm
+from cards.forms import CardForm, SearchCardsForm, UploadFileForm
+from django.views.decorators.cache import cache_page
+
 # import cards
 from cards.models import Card
 from cards.templatetags.markdown_to_html import markdown_to_html
@@ -59,13 +62,13 @@ def about(request):
     будет возвращать рендер шаблона /root/templates/about.html"""
     return render(request, 'about.html', info)
 
+@cache_page(60 * 15)
 def catalog(request):
     """Функция для отображения страницы "Каталог"
     будет возвращать рендер шаблона /templates/cards/catalog.html"""
 
     # Получаем ВСЕ карточки для каталога
     # cards = Card.objects.all()
-
     sort = request.GET.get('sort', 'upload_date')
     order = request.GET.get('order', 'desc')
 
@@ -78,13 +81,25 @@ def catalog(request):
     else:
         order_by = f'-{sort}'
 
-    cards = Card.objects.all().order_by(order_by)
-    
+    # cards = Card.objects.all().order_by(order_by)
+    form = SearchCardsForm()
+    queryset = Card.objects.select_related('category').prefetch_related('tags')
+    search_query = request.GET.get('search_query')
+    if search_query:
+            queryset = queryset.filter(
+                Q(question__icontains=search_query) |
+                Q(answer__icontains=search_query) |
+                Q(tags__name__icontains=search_query)
+            ).distinct().order_by(order_by)
+    # else:
+    #     queryset = queryset.order_by(order_by)
+    cards = queryset.order_by(order_by)
     # Подготавливаем контекст и отображаем шаблон
     context = {
         'cards': cards,
         'cards_count': cards.count(),
         'menu': info['menu'],
+        'form': form,
     }
 
     return render(request, 'cards/catalog.html', context)

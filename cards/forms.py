@@ -45,3 +45,6 @@ class CardForm(forms.ModelForm):
 
 class UploadFileForm(forms.Form):
     file = forms.FileField(label='Выберите файл', widget=forms.FileInput(attrs={'class': 'form-control'}))
+
+class SearchCardsForm(forms.Form):
+    search_query = forms.CharField(label="", required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
