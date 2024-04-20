@@ -6,6 +6,15 @@ from .models import Card, Category, Tag
 # from .validators import CodeBlockValidator  # Предполагается, что класс валидатора определен в validators.py
 
 class CardForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CardForm, self).__init__(*args, **kwargs)
+
+
+        # Мы проверяем, что self.instance сушествует. Это значит, что форма связана с существующей карточкой
+        # if self.instance:
+        #     # Собираем теги и формируем строку для человеков
+        #     # initial - это словарь, который содержит начальные значения для полей формы
+        #     self.fields['tags'].initial = ', '.join([tag.name + "ТЭЭЭГ!" for tag in self.instance.tags.all()])
     # Определяем поля формы, связываем с моделью Card и добавляем дополнительные настройки
     category = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label="Категория не выбрана", label='Категория', widget= forms.Select(attrs={'class': 'form-control'}))
     tags = forms.CharField(label='Теги', required=False, help_text='Перечислите теги через запятую', widget= forms.TextInput(attrs={'class': 'form-control'}))
@@ -34,7 +43,8 @@ class CardForm(forms.ModelForm):
         # Сохранение карточки вместе с тегами
         instance = super().save(commit=False)
         instance.save()  # Сначала сохраняем карточку, чтобы получить ее id
-
+        current_tags = set(self.cleaned_data['tags'])
+        existing_tags = set(tag.name for tag in instance.tags.all())
         # Обрабатываем теги
         for tag_name in self.cleaned_data['tags']:
             tag, created = Tag.objects.get_or_create(name=tag_name)

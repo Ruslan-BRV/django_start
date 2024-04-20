@@ -1,95 +1,171 @@
 <!-- cards/templates/cards/catalog.html -->
 <!-- Использует шаблон cards/templates/cards/include/card_preview.html -->
 {% extends "base.html" %} 
-{% load static %}
-{% block head %}<link rel="stylesheet" href="{% static 'css/main.css' %}" />{% endblock head %}
-{% block content %}
+{% load static %} 
+{% load cache %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<style>
+  /* Стили для темной темы пагинации */
+  .pagination-dark .page-link {
+    background-color: #343a40; /* Темный фон для ссылок */
+    color: #ffffff; /* Белый текст */
+  }
+  .pagination-dark .page-link:hover {
+    background-color: #495057; /* Светлее при наведении */
+  }
+  .pagination-dark .page-item.active .page-link {
+    background-color: #212529 !important; /* Очень темный фон для активной ссылки */
+    border-color: #212529 !important; /* Очень темный бордюр для активной ссылки */
+  }
+  .pagination-dark .page-item.active .page-link:hover {
+    background-color: #32383e !important; /* Немного светлее цвет фона при наведении */
+    border-color: #32383e !important; /* Цвет границы при наведении */
+  }
+  /* Стили для радиокнопок */
+  .form-check-input:checked {
+    background-color: #212529 !important; /* Очень темный фон для активной радиокнопки */
+    border-color: #212529 !important; /* Очень темный бордюр для активной радиокнопки */
+  }
+</style>
+{% endblock head %} {% block content %}
 
-  <h1>Каталог карточек Anki для интервального повторения</h1>
-  <p>Здесь вы можете выбрать карточки для изучения</p>
-  <p>
-    На текущий момент, у нас карточек: {{cards_count}} и пользователей:
-    {{users_count}}
-  </p>
-  <div class="p-2 d-flex">
-      {% comment %} <a class="btn btn-secondary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Параметры сортировки</a> {% endcomment %}
-      <form class="d-flex" method="GET">
-        {% csrf_token %}
-        <div class="mr-1 align-self-center fw-medium fs-5">Параметры сортировки:</div>
-        {% for field in form %}
-        <div class="mr-1">{{field}}</div>
-        {% endfor %}
-        <button class="btn btn-outline-secondary ml-1" type="submit">Поиск</button>
-      </form> 
+<h1>Каталог карточек Anki для интервального повторения</h1>
+{% comment %} <p>Здесь вы можете выбрать карточки для изучения</p>
+<p>
+  На текущий момент, у нас карточек: {{cards_count}} и пользователей:
+  {{users_count}}
+</p> {% endcomment %}
+<div class="row">
+  <div class="col-12">
+    <nav aria-label="Page navigation" class="text-dark">
+      <ul class="pagination pagination-dark">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a
+            class="page-link text-white bg-secondary"
+            href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}&order={{ order }}&{% if search_query %}search_query={{search_query}}{% endif %}"
+            >Предыдущая</a
+          >
+        </li>
+        {% endif %} 
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+          <a
+            class="page-link text-white bg-secondary"
+            href="?page={{ num }}&sort={{ sort }}&order={{ order }}&{% if search_query %}search_query={{search_query}}{% endif %}"
+            >{{ num }}</a
+          >
+        </li>
+        {% endfor %} 
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a
+            class="page-link text-white bg-secondary"
+            href="?page={{ page_obj.next_page_number }}&sort={{ sort }}&order={{ order }}&{% if search_query %}search_query={{search_query}}{% endif %}"
+            >Следующая</a
+          >
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
   </div>
-  {% comment %} <div class="collapse proverka" id="collapseExample" >
-    <div class="card card-body mb-3">
-      <form>
-        <fieldset class="row mb-3">
-          <legend class="col-form-label col-sm-2 pt-0">
-            Выберите параметры:
-          </legend>
-          <div class="col-sm-10">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="sort"
-                id="gridRadios1"
-                value="upload_date"
-              />
-              <label class="form-check-label" for="gridRadios1">
-                По дате добавления
-              </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="sort"
-                id="gridRadios2"
-                value="views"
-              />
-              <label class="form-check-label" for="gridRadios2">
-                По количеству просмотров
-              </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="sort"
-                id="gridRadios3"
-                value="adds"
-              />
-              <label class="form-check-label" for="gridRadios3">
-                По количеству добавлений
-              </label>
-            </div>
+</div>
+<div class="p-2 d-flex">
+  {% comment %}
+  <a
+    class="btn btn-secondary"
+    data-bs-toggle="collapse"
+    href="#collapseExample"
+    role="button"
+    aria-expanded="false"
+    aria-controls="collapseExample"
+    >Параметры сортировки</a
+  >
+  {% endcomment %}
+  <form class="d-flex" method="GET">
+    {% csrf_token %}
+    <div class="mr-1 align-self-center fw-medium fs-5">
+      Параметры сортировки:
+    </div>
+    {% for field in form %}
+    <div class="mr-1">{{field}}</div>
+    {% endfor %}
+    <button class="btn btn-outline-secondary ml-1" type="submit">Поиск</button>
+  </form>
+</div>
+{% comment %}
+<div class="collapse proverka" id="collapseExample">
+  <div class="card card-body mb-3">
+    <form>
+      <fieldset class="row mb-3">
+        <legend class="col-form-label col-sm-2 pt-0">
+          Выберите параметры:
+        </legend>
+        <div class="col-sm-10">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sort"
+              id="gridRadios1"
+              value="upload_date"
+            />
+            <label class="form-check-label" for="gridRadios1">
+              По дате добавления
+            </label>
           </div>
-        </fieldset>
-        <div class="row mb-3">
-          <div class="col-sm-10 offset-sm-2">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="order"
-                id="gridCheck1"
-                value="asc"
-              />
-              <label class="form-check-label" for="gridCheck1">
-                От меньшего к большему
-              </label>
-            </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sort"
+              id="gridRadios2"
+              value="views"
+            />
+            <label class="form-check-label" for="gridRadios2">
+              По количеству просмотров
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sort"
+              id="gridRadios3"
+              value="adds"
+            />
+            <label class="form-check-label" for="gridRadios3">
+              По количеству добавлений
+            </label>
           </div>
         </div>
-        <button type="submit" class="btn btn-secondary">Отсортировать</button>
-      </form>
-    </div>
-  </div> {% endcomment %}
-
+      </fieldset>
+      <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              name="order"
+              id="gridCheck1"
+              value="asc"
+            />
+            <label class="form-check-label" for="gridCheck1">
+              От меньшего к большему
+            </label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-secondary">Отсортировать</button>
+    </form>
+  </div>
+</div>
+{% endcomment %} 
+<p>Найдено карточек: {{ page_obj.paginator.count }}</p>
+{% cache 30 catalog_cards page_obj.number sort order search_query %}
 {% for card in cards %} 
 {% include "cards/include/card_preview.html" %} 
 {% endfor %} 
+{% endcache %}
 {% endblock %}
