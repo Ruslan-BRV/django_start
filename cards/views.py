@@ -20,6 +20,7 @@ from functools import cached_property
 import os
 from re import search
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -440,12 +441,18 @@ def add_card_by_file(request):
         form = UploadFileForm()
     return render(request, 'cards/add_file_card.html', {'form': form})
 
-class AddCardView(MenuMixin, CreateView):
+class AddCardView(LoginRequiredMixin, MenuMixin, CreateView):
+    login_url = reverse_lazy('users:login')
+    redirect_field_name = 'next'
     model = Card  # Указываем модель, с которой работает представление
     form_class = CardForm  # Указываем класс формы для создания карточки
     template_name = 'cards/add_card.html'  # Указываем шаблон, который будет использоваться для отображения формы
     success_url = reverse_lazy('catalog')  # URL для перенаправления после успешного создания карточки
-
+    def form_valid(self, form):
+        # Добавляем автора к карточке перед сохранением
+        form.instance.author = self.request.user
+        # Логика обработки данных формы перед сохранением объекта
+        return super().form_valid(form)
 
 # class AddCardView(View):
 #     def get(self, request):
