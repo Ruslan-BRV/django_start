@@ -24,7 +24,6 @@ class Migration(migrations.Migration):
                 ('views', models.IntegerField(db_column='Views', default=0, verbose_name='Просмотры')),
                 ('adds', models.IntegerField(db_column='Favorites', default=0, verbose_name='Добавления')),
                 ('status', models.BooleanField(choices=[(False, 'Не проверено'), (True, 'Проверено')], default=False, verbose_name='Проверено')),
-                ('author', models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='cards', to=settings.AUTH_USER_MODEL, verbose_name='Автор')),
             ],
             options={
                 'verbose_name': 'Карточка',

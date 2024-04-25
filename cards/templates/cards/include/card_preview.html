@@ -28,7 +28,7 @@
           <a href="{% url 'detail_card_by_id' pk=card.pk %}" class="btn btn-dark btn-sm ms-3 d-block d-sm-none">
             <i class="bi bi-arrow-right"></i>
           </a>
-        
+          <p class="card-text"><small class="text-muted">Автор: {{ card.author.username|default:"неизвестен" }}</small></p>
           <!-- Кнопка для sm и больше (полный текст) -->
           <a href="{% url 'detail_card_by_id' pk=card.pk %}" class="btn btn-dark btn-sm ms-3 d-none d-sm-block">
             Подробнее

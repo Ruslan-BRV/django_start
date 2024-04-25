@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import logout
-from .forms import CustomAuthenticationForm
+from .forms import CustomAuthenticationForm, RegisterUserForm
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
@@ -19,7 +19,17 @@ class LoginUser(MenuMixin, LoginView):
             return self.request.POST.get('next')
         return reverse_lazy('catalog')
 
-
+def register(request):
+    if request.method == 'POST':
+        form = RegisterUserForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])  # Устанавливаем пароль
+            user.save()
+            return redirect('users:register_done')  # Перенаправляем на страницу успешной регистрации
+    else:
+        form = RegisterUserForm()  # Пустая форма для GET-запроса
+    return render(request, 'users/register.html', {'form': form})
 
 # # Create your views here.
 # def login_user(request):
