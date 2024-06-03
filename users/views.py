@@ -26,11 +26,11 @@ class LoginUser(MenuMixin, LoginView):
             return self.request.POST.get('next')
         return reverse_lazy('catalog')
 
-class LogoutUser(LogoutView):
+class LogoutUser(MenuMixin, LogoutView):
     next_page = reverse_lazy('users:login')
 
 
-class RegisterUser(CreateView):
+class RegisterUser(MenuMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'users/register.html'
     extra_context = {'title': 'Регистрация'}
@@ -42,7 +42,7 @@ class RegisterDoneView(MenuMixin, TemplateView):
     extra_context = {'title': 'Регистрация завершена'}
 
 
-class ProfileUser(LoginRequiredMixin, UpdateView):
+class ProfileUser(MenuMixin, LoginRequiredMixin, UpdateView):
     model = get_user_model()  # Используем модель текущего пользователя
     form_class = ProfileUserForm  # Связываем с формой профиля пользователя
     template_name = 'users/profile.html'  # Указываем путь к шаблону
@@ -57,7 +57,7 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
-class UserPasswordChange(PasswordChangeView):
+class UserPasswordChange(MenuMixin, PasswordChangeView):
     form_class = UserPasswordChangeForm
     template_name = 'users/password_change_form.html'
     extra_context = {'title': 'Изменение пароля',
@@ -65,12 +65,12 @@ class UserPasswordChange(PasswordChangeView):
     success_url = reverse_lazy('users:password_change_done')
 
 
-class UserPasswordChangeDone(TemplateView):
+class UserPasswordChangeDone(MenuMixin, TemplateView):
     template_name = 'users/password_change_done.html'
     extra_context = {'title': 'Пароль изменен успешно'}
 
 
-class UserCardsView(ListView):
+class UserCardsView(MenuMixin, ListView):
     model = Card
     template_name = 'users/profile_cards.html'
     context_object_name = 'cards'
