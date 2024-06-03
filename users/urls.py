@@ -1,13 +1,17 @@
-
-
 from django.urls import path
 from . import views
 
-
-app_name = 'users'
+app_name = 'users'  # Пространство имен для приложения
 
 urlpatterns = [
+    # Вход / Выход / Регистрация
     path('login/', views.LoginUser.as_view(), name='login'),
-    path('logout/', views.logout_user, name='logout'),
-    path('signup/', views.register, name='signup'),
+    path('logout/', views.LogoutUser.as_view(), name='logout'),
+    path('signup/', views.RegisterUser.as_view(), name='signup'),
+    # Сообщение об успешной регистрации
+    path('register_done/', views.RegisterDoneView.as_view(), name='register_done'),
+    # Профиль / Изменение пароля / Мои карточки
+    path("profile/", views.ProfileUser.as_view(), name='profile'),
+    path("password_change/", views.UserPasswordChange.as_view(), name='password_change'),
+    path("profile_cards/", views.UserCardsView.as_view(), name='profile_cards'),
 ]
